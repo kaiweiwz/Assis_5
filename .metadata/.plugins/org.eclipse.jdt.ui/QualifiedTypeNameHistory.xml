@@ -1,2 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<qualifiedTypeNameHistroy/>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="com.example.assis_3.extensions.sample.FavoriteActivity"/>
+<fullyQualifiedTypeName name="com.example.assis_3.extensions.sample.MessageActivity"/>
+<fullyQualifiedTypeName name="android.R"/>
+<fullyQualifiedTypeName name="android.R.layout"/>
+<fullyQualifiedTypeName name="com.example.assis_3.R"/>
+<fullyQualifiedTypeName name="com.example.assis_3.R.layout"/>
+<fullyQualifiedTypeName name="com.example.assis_3.R.drawable"/>
+<fullyQualifiedTypeName name="com.example.assis_3.R.id"/>
+<fullyQualifiedTypeName name="com.example.assis_3.constants.CommonConstants"/>
+<fullyQualifiedTypeName name="com.example.assis_3.extensions.sample.SettingActivity"/>
+</qualifiedTypeNameHistroy>

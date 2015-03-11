@@ -1,0 +1,18 @@
+package com.example.assis_3.extensions.sample;
+
+import com.example.assis_3.R;
+
+import android.app.Activity;
+import android.os.Bundle;
+
+public class SettingActivity extends Activity{
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		getActionBar().setTitle("设置");
+		getActionBar().setLogo(R.drawable.btn_back_normal);
+		setContentView(R.layout.settings);
+	}
+}

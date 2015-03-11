@@ -1,0 +1,25 @@
+package com.example.assis_3.extensions.sample;
+
+import com.example.assis_3.R;
+
+import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+
+public class SettingActivity extends Activity {
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		initActionBar();
+		setContentView(R.layout.settings);
+	}
+
+	private void initActionBar() {
+		// TODO Auto-generated method stub
+		
+	}
+}

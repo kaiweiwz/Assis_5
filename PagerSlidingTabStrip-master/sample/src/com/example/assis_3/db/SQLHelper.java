@@ -6,10 +6,10 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class SQLHelper extends SQLiteOpenHelper {
-	public static final String DB_NAME = "database.db";// 数据库名�?	public static final int VERSION = 1;
+	public static final String DB_NAME = "database.db";// 数据库名?	public static final int VERSION = 1;
 	public static final int VERSION = 1;
 	
-	public static final String TABLE_CHANNEL = "channel";//数据�?
+	public static final String TABLE_CHANNEL = "channel";//数据?
 
 	public static final String ID = "id";//
 	public static final String NAME = "name";

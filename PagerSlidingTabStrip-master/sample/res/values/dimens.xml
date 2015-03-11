@@ -3,12 +3,35 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="slidingmenu_offset">60dp</dimen>
+    <dimen name="slidingmenu_offset">120dp</dimen>
     <dimen name="list_padding">10dp</dimen>
     <dimen name="shadow_width">15dp</dimen>
 
+    <!-- viewpager 字体大小 -->
+    <integer name="title_string_size">5</integer>
     <integer name="num_cols">1</integer>
 
+    <dimen name="title_bar_height">44.0dip</dimen>
     <dimen name="head_size">28.0dip</dimen>
 
+    <!-- 左侧配置栏 -->
+    <dimen name="left_drawer_avatar_size">48.0dip</dimen>
+    <dimen name="list_item_horizontal_padding">15.0dip</dimen>
+    <dimen name="right_image_width">86.0dip</dimen>
+    <dimen name="right_image_height">60.0dip</dimen>
+
+    <dimen name="item_image_width">86.0dip</dimen>
+    <dimen name="item_image_height">60.0dip</dimen>
+    <dimen name="item_image_total_padding">60.0dip</dimen>
+    <dimen name="item_image_max_width">180.0dip</dimen>
+    <dimen name="alt_mark_size">15.0dip</dimen>
+    
+    <!-- 设置页面 -->
+     <dimen name="bg_row_corner_radius">8.0dip</dimen>
+    <dimen name="bg_row_corner_radius_none">0.0dip</dimen>
+    <dimen name="bg_row_padding_left">1.0dip</dimen>
+    <dimen name="bg_row_padding_right">1.0dip</dimen>
+    <dimen name="bg_row_padding_top">1.0dip</dimen>
+    <dimen name="bg_row_padding_bottom">1.0dip</dimen>
+    <dimen name="bg_row_border_width">0.5dip</dimen>
 </resources>
