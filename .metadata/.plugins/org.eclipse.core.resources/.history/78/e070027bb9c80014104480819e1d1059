@@ -1,0 +1,71 @@
+package com.example.assis_3.entity;
+
+public class SystemConfig {
+	
+	//主键ID
+    private Integer id;
+    
+    //参数配置名称    
+    private String configName;
+    
+    //参数配置值    
+    private String configValue;
+    
+    //系统参数描述
+    private String descr;
+    
+    //系统参数所属模块
+    private String moduleID;
+
+    public SystemConfig() {
+	}
+    
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getConfigName() {
+		return configName;
+	}
+
+	public void setConfigName(String configName) {
+		this.configName = configName;
+	}
+
+	public String getConfigValue() {
+		return configValue;
+	}
+
+	public void setConfigValue(String configValue) {
+		this.configValue = configValue;
+	}
+
+	public String getDescr() {
+		return descr;
+	}
+
+	public void setDescr(String descr) {
+		this.descr = descr;
+	}
+
+	public String getModuleID() {
+		return moduleID;
+	}
+
+	public void setModuleID(String moduleID) {
+		this.moduleID = moduleID;
+	}
+
+	@Override
+	public String toString() {
+		return "SystemConfig [id=" + id + ", configName=" + configName
+				+ ", configValue=" + configValue + ", descr=" + descr
+				+ ", moduleID=" + moduleID + "]";
+	}
+    
+    
+}

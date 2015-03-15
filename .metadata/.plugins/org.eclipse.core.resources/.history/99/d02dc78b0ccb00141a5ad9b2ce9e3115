@@ -1,0 +1,38 @@
+package com.example.assis_3.manager;
+
+import java.util.List;
+
+import com.example.assis_3.DaoSession;
+import com.example.assis_3.SystemMsg;
+import com.example.assis_3.app.AppApplication;
+
+public class FeedbackManager {
+	public static final FeedbackManager instance = new FeedbackManager();
+
+	public FeedbackManager() {
+	}
+
+	public static FeedbackManager getFeedbackManager() {
+		return instance;
+	}
+
+	//
+	public SystemMsg getSysMsgById(Long id) {
+		DaoSession daoSession = AppApplication.getDaoSession();
+		SystemMsg record = daoSession.getSystemMsgDao().loadByRowId(id);
+		return record;
+	}
+
+	//
+	public List<SystemMsg> getSystemMsgAll() {
+		DaoSession daoSession = AppApplication.getDaoSession();
+		List<SystemMsg> record = daoSession.getSystemMsgDao().loadAll();
+		return record;
+	}
+
+	//
+	public void deleteSystemMsgById(Long id) {
+		DaoSession daoSession = AppApplication.getDaoSession();
+		daoSession.getSystemMsgDao().deleteByKey(id);
+	}
+}

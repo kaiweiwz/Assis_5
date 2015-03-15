@@ -1,0 +1,41 @@
+package com.example.assis_3.manager;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import com.example.assis_3.dao.ChannelDao;
+import com.example.assis_3.db.SQLHelper;
+import com.example.assis_3.entity.ChannelItem;
+
+import android.database.SQLException;
+import android.util.Log;
+
+public class ChannelManage {
+	public static ChannelManage channelManage;
+	/**
+	 * 默认的用户选择频道列表
+	 * */
+	public static List<ChannelItem> defaultUserChannels;
+
+	static {
+		defaultUserChannels = new ArrayList<ChannelItem>();
+		defaultUserChannels.add(new ChannelItem(1, "推荐", 1, 1));
+		defaultUserChannels.add(new ChannelItem(2, "热点", 2, 1));
+		defaultUserChannels.add(new ChannelItem(3, "杭州", 3, 1));
+		defaultUserChannels.add(new ChannelItem(4, "时尚", 4, 1));
+	}
+
+	/**
+	 * 初始化频道管理类
+	 * @param paramDBHelper
+	 * @throws SQLException
+	 */
+	public static ChannelManage getManage(SQLHelper dbHelper)throws SQLException {
+		if (channelManage == null)
+			channelManage = new ChannelManage(dbHelper);
+		return channelManage;
+	}
+	
+	
+}

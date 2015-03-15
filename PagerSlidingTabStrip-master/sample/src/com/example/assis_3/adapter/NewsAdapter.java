@@ -6,8 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.zip.Inflater;
 
+import com.example.assis_3.NewsEntity;
 import com.example.assis_3.R;
-import com.example.assis_3.entity.NewsEntity;
+import com.example.assis_3.manager.NewsManager;
 import com.example.assis_3.options.ImageOptions;
 import com.example.assis_3.util.DateTools;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -15,10 +16,14 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.app.Activity;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -26,14 +31,13 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
-import android.widget.AbsListView.OnScrollListener;
 
-public class NewsAdapter extends BaseAdapter implements SectionIndexer {
+public class NewsAdapter extends BaseAdapter implements SectionIndexer,
+		OnClickListener {
 
-	ArrayList<NewsEntity> newsList;
+	List<NewsEntity> newsList;
 	Activity activity;
 	LayoutInflater inflater = null;
 	protected ImageLoader imageLoader = ImageLoader.getInstance();
@@ -41,7 +45,7 @@ public class NewsAdapter extends BaseAdapter implements SectionIndexer {
 	/** 弹出的更多选择框 */
 	private PopupWindow popupWindow;
 
-	public NewsAdapter(Activity activity, ArrayList<NewsEntity> newsList) {
+	public NewsAdapter(Activity activity, List<NewsEntity> newsList) {
 		this.activity = activity;
 		this.newsList = newsList;
 		inflater = LayoutInflater.from(activity);
@@ -80,7 +84,7 @@ public class NewsAdapter extends BaseAdapter implements SectionIndexer {
 		View view = convertView;
 		if (view == null) {
 			view = inflater.inflate(R.layout.list_item, null);
-			
+
 			mHolder = new ViewHolder();
 			mHolder.item_layout = (LinearLayout) view
 					.findViewById(R.id.item_layout);
@@ -120,52 +124,45 @@ public class NewsAdapter extends BaseAdapter implements SectionIndexer {
 		mHolder.item_source.setText(news.getSource());
 		mHolder.comment_count.setText("评论" + news.getCommentNum());
 		mHolder.publish_time.setText(news.getPublishTime() + "小时前");
-		List<String> imgUrlList = news.getPicList();
+
 		mHolder.popicon.setVisibility(View.VISIBLE);
 		mHolder.comment_count.setVisibility(View.VISIBLE);
 		mHolder.right_padding_view.setVisibility(View.VISIBLE);
 
-		if (imgUrlList != null && imgUrlList.size() != 0) {
-			if (imgUrlList.size() == 1) {
-				mHolder.item_image_layout.setVisibility(View.GONE);
-				mHolder.right_image.setVisibility(View.VISIBLE);
-				imageLoader.displayImage(imgUrlList.get(0),
-						mHolder.right_image, options);
-			} else {
-				mHolder.right_image.setVisibility(View.GONE);
-				mHolder.item_image_layout.setVisibility(View.VISIBLE);
-				imageLoader.displayImage(imgUrlList.get(0),
-						mHolder.item_image_0, options);
-				imageLoader.displayImage(imgUrlList.get(1),
-						mHolder.item_image_1, options);
-				imageLoader.displayImage(imgUrlList.get(2),
-						mHolder.item_image_2, options);
-			}
+		if (TextUtils.isEmpty(news.getPicOne())
+				|| TextUtils.isEmpty(news.getPicTwo())
+				|| TextUtils.isEmpty(news.getPicThr())) {
+			mHolder.item_image_layout.setVisibility(View.GONE);
+			mHolder.right_image.setVisibility(View.VISIBLE);
+			imageLoader.displayImage(news.getPicOne(), mHolder.right_image,
+					options);
 		} else {
 			mHolder.right_image.setVisibility(View.GONE);
-			mHolder.item_image_layout.setVisibility(View.GONE);
+			mHolder.item_image_layout.setVisibility(View.VISIBLE);
+			imageLoader.displayImage(news.getPicOne(), mHolder.item_image_0,
+					options);
+			imageLoader.displayImage(news.getPicTwo(), mHolder.item_image_1,
+					options);
+			imageLoader.displayImage(news.getPicThr(), mHolder.item_image_2,
+					options);
 		}
-		if (!TextUtils.isEmpty(news.getNewsAbstract())) {
+		if (!TextUtils.isEmpty(news.getSummary())) {
 			mHolder.item_abstract.setVisibility(View.VISIBLE);
-			mHolder.item_abstract.setText(news.getNewsAbstract());
+			mHolder.item_abstract.setText(news.getSummary());
 		} else {
 			mHolder.item_abstract.setVisibility(View.GONE);
 		}
-		// 判断该新闻是否已读
-		if (!news.getReadStatus()) {
-			mHolder.item_layout.setSelected(true);
-		} else {
-			mHolder.item_layout.setSelected(false);
-		}
 		// 设置+按钮点击效果
 		mHolder.popicon.setOnClickListener(new popAction(position));
-
+        if(activity.getClass().getSimpleName().equals("FavoriteActivity")){
+        	mHolder.popicon.setVisibility(View.GONE);
+        }
 		return view;
 	}
 
 	static class ViewHolder {
 		LinearLayout item_layout;
-		//三张图片所在布局
+		// 三张图片所在布局
 		LinearLayout picture_layout;
 		// title
 		TextView item_title;
@@ -196,6 +193,10 @@ public class NewsAdapter extends BaseAdapter implements SectionIndexer {
 	/** popWindow 关闭按钮 */
 	private ImageView btn_pop_close;
 
+	private LinearLayout ll_pop_speech;
+
+	private LinearLayout ll_pop_favor;
+
 	/**
 	 * 初始化弹出的pop
 	 * */
@@ -206,13 +207,44 @@ public class NewsAdapter extends BaseAdapter implements SectionIndexer {
 		popupWindow.setBackgroundDrawable(new ColorDrawable(0));
 		// 设置popwindow出现和消失动画
 		popupWindow.setAnimationStyle(R.style.PopMenuAnimation);
+
 		btn_pop_close = (ImageView) popView.findViewById(R.id.btn_pop_close);
+		ll_pop_speech = (LinearLayout) popView.findViewById(R.id.ll_pop_speech);
+		ll_pop_favor = (LinearLayout) popView.findViewById(R.id.ll_pop_favor);
 	}
 
 	/**
 	 * 显示popWindow
 	 * */
 	public void showPop(View parent, int x, int y, int postion) {
+		// 展现POP的时候判断，新闻列表是否已经被收藏
+		NewsEntity record = newsList.get(postion);
+		NewsManager newsManager = NewsManager.getManager(activity);
+		List<NewsEntity> results = newsManager.isFavoriteNews(record);
+		if (results.size() > 0) {
+			TextView favor = (TextView) popupWindow.getContentView()
+					.findViewById(R.id.tv_pop_favor);
+			favor.setOnClickListener(new popAction(postion));
+			Drawable drawable = activity.getResources().getDrawable(
+					R.drawable.listpage_more_like_seleted_normal);
+			//String cancelFav = activity.getResources().getString(R.string.left_drawer_item_cancel_favorite);
+			// 这一步必须要做,否则不会显示.
+			drawable.setBounds(0, 0, drawable.getMinimumWidth(),
+					drawable.getMinimumHeight());
+			favor.setCompoundDrawables(drawable, null, null, null);
+			favor.setText(R.string.left_drawer_item_cancel_favorite);
+			favor.setOnClickListener(new popAction(postion));
+		}else{
+			TextView favor = (TextView) popupWindow.getContentView()
+					.findViewById(R.id.tv_pop_favor);
+			Drawable drawable = activity.getResources().getDrawable(
+					R.drawable.listpage_more_like_normal);
+			drawable.setBounds(0, 0, drawable.getMinimumWidth(),
+					drawable.getMinimumHeight());
+			favor.setCompoundDrawables(drawable, null, null, null);
+			favor.setText(R.string.left_drawer_item_favorite);
+			favor.setOnClickListener(new popAction(postion));
+		}
 		// 设置popwindow显示位置
 		popupWindow.showAtLocation(parent, 0, x, y);
 		// 获取popwindow焦点
@@ -242,12 +274,33 @@ public class NewsAdapter extends BaseAdapter implements SectionIndexer {
 
 		@Override
 		public void onClick(View v) {
-			int[] arrayOfInt = new int[2];
-			// 获取点击按钮的坐标
-			v.getLocationOnScreen(arrayOfInt);
-			int x = arrayOfInt[0];
-			int y = arrayOfInt[1];
-			showPop(v, x, y, position);
+			int id = v.getId();
+			NewsManager instance = NewsManager.getManager(activity);
+			switch (id) {
+			case R.id.popicon:
+				int[] arrayOfInt = new int[2];
+				// 获取点击按钮的坐标
+				v.getLocationOnScreen(arrayOfInt);
+				int x = arrayOfInt[0];
+				int y = arrayOfInt[1];
+				showPop(v, x, y, position);
+				break;
+			case R.id.tv_pop_favor:
+				NewsEntity record = newsList.get(position);
+				List<NewsEntity> results = instance.isFavoriteNews(record);
+				if(results.size() == 0){
+					instance.insertFavoriteNews(record);
+					popupWindow.dismiss();
+				}else{
+					instance.deleteFavoriteNews(record);
+					popupWindow.dismiss();
+				}
+				break;
+			case R.id.ll_pop_speech:
+
+				break;
+			}
+
 		}
 	}
 
@@ -276,4 +329,17 @@ public class NewsAdapter extends BaseAdapter implements SectionIndexer {
 		return index >= 0 ? index : -index - 2;
 	}
 
+	@Override
+	public void onClick(View view) {
+		int id = view.getId();
+		NewsManager instance = NewsManager.getManager(activity);
+		switch (id) {
+		case R.id.ll_pop_favor:
+       //     List<NewsEntity> results = instance.isFavoriteNews(record)
+			break;
+		case R.id.ll_pop_speech:
+
+			break;
+		}
+	}
 }

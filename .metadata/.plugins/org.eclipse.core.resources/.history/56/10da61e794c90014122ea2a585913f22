@@ -1,0 +1,12 @@
+package com.example.assis_3.manager;
+
+import com.example.assis_3.SystemMsg;
+
+public class SystemMsgManager {
+
+	
+	//
+	public SystemMsg getSysMsg(){
+		
+	}
+}

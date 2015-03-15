@@ -1,0 +1,38 @@
+package com.example.assis_3.manager;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import com.example.assis_3.entity.SystemConfig;
+
+public class SystemConfigManager {
+
+	private static final SystemConfigManager instance = new SystemConfigManager();
+	
+	private static final Map<String, String> configMap = new HashMap<String, String>();
+
+	public SystemConfigManager getInstance() {
+		return instance;
+	};
+	
+	public Map<String, String> getConfig(){
+		return configMap;
+	}
+	
+	public void initConfig(){
+		//从库中取值， 存入Map
+		List<SystemConfig> list = new ArrayList<SystemConfig>();
+		for(int i=0; i<list.size(); i++){
+			SystemConfig systemConfig = list.get(i);
+			configMap.put(systemConfig.getConfigName(), systemConfig.getConfigValue());
+		}
+	}
+	
+	public void saveConfig(Map<String, String> configMap){
+		I
+	}
+
+}

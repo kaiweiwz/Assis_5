@@ -51,9 +51,8 @@
             style="@style/dislike_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/listpage_more_like"
+            android:drawableLeft="@drawable/listpage_more_like_normal"
             android:drawablePadding="4.0dip"
-            android:duplicateParentState="true"
             android:text="收藏" />
     </LinearLayout>
 
@@ -71,7 +70,8 @@
         android:gravity="center"
         android:minHeight="36.0dip"
         android:minWidth="90.0dip"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:visibility="gone" >
 
         <TextView
             android:id="@+id/tv_pop_dislike"
@@ -81,6 +81,7 @@
             android:drawableLeft="@drawable/listpage_more_dislike"
             android:drawablePadding="4.0dip"
             android:duplicateParentState="true"
+            android:visibility="gone"
             android:text="不感兴趣" />
     </LinearLayout>
 

@@ -2,6 +2,9 @@ package com.example.assis_3.app;
 
 import java.io.File;
 
+import com.example.assis_3.DaoMaster;
+import com.example.assis_3.DaoSession;
+import com.example.assis_3.DaoMaster.OpenHelper;
 import com.example.assis_3.db.SQLHelper;
 import com.nostra13.universalimageloader.cache.disc.impl.UnlimitedDiskCache;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -16,14 +19,19 @@ import android.content.Context;
 import android.util.Log;
 
 public class AppApplication extends Application {
+	
 	private static AppApplication mAppApplication;
-	private SQLHelper sqlHelper;
+	
+	private static DaoMaster daoMaster;
+	private static DaoSession daoSession;
 	
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
 		super.onCreate();
 		initImageLoader(getApplicationContext());
+		initDaoMaster(this);
+		initDaoSession();
 		mAppApplication = this;
 	}
 	
@@ -32,21 +40,6 @@ public class AppApplication extends Application {
 		return mAppApplication;
 	}
 	
-	/** 获取数据库Helper */
-	public SQLHelper getSQLHelper() {
-		if (sqlHelper == null)
-			sqlHelper = new SQLHelper(mAppApplication);
-		return sqlHelper;
-	}
-	
-	@Override
-	public void onTerminate() {
-		// TODO Auto-generated method stub
-		if (sqlHelper != null)
-			sqlHelper.close();
-		super.onTerminate();
-		//整体摧毁的时候调用这个方法
-	}
 	/** 初始化ImageLoader */
 	public static void initImageLoader(Context context) {
 		File cacheDir = StorageUtils.getOwnCacheDirectory(context, "topnews/Cache");//获取到缓存的目录地址
@@ -73,5 +66,45 @@ public class AppApplication extends Application {
 				.build();
 		// Initialize ImageLoader with configuration.
 		ImageLoader.getInstance().init(config);//全局初始化此配置
+	}
+	
+	public static void initDaoMaster(Context context){
+		if (daoMaster == null) {
+			OpenHelper helper = new DaoMaster.DevOpenHelper(context,
+					"ASSIS_DB", null);
+			daoMaster = new DaoMaster(helper.getWritableDatabase());
+		}
+	}
+	
+	public static void initDaoSession(){
+		if (daoSession == null) {
+			if (daoMaster == null) {
+				daoMaster = getDaoMaster();
+			}
+			daoSession = daoMaster.newSession();
+		}
+	}
+	
+	/**
+	 * 取得DaoMaster
+	 */
+	public static DaoMaster getDaoMaster() {
+		if(daoMaster == null){
+			initDaoMaster(getApp());
+		}
+		return daoMaster;
+	}
+
+	/**
+	 * 取得DaoSession
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static DaoSession getDaoSession() {
+		if(daoSession == null){
+			initDaoSession();
+		}
+		return daoSession;
 	}
 }

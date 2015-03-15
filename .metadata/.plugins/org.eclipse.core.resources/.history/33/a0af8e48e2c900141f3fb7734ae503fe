@@ -1,0 +1,40 @@
+package com.example.assis_3.manager;
+
+import java.util.List;
+
+import android.app.Activity;
+
+import com.example.assis_3.AssisApp;
+import com.example.assis_3.DaoSession;
+import com.example.assis_3.SystemMsg;
+
+public class SystemMsgManager {
+
+	public SystemConfigManager instance;
+	
+	public Activity activity;
+	
+	public SystemMsgManager(Activity mActivity){
+		this.activity = mActivity;
+	}
+
+	//
+	public SystemMsg getSysMsgById(Long id){
+		DaoSession daoSession = AssisApp.getDaoSession(activity.getApplicationContext());
+		SystemMsg record = daoSession.getSystemMsgDao().loadByRowId(id);
+		return record;
+	}
+
+	//
+	public List<SystemMsg> getSystemMsgAll() {
+		DaoSession daoSession = AssisApp.getDaoSession(activity.getApplicationContext());
+		List<SystemMsg> record = daoSession.getSystemMsgDao().loadAll();
+		return record;
+	}
+
+	//
+	public void deleteSystemMsgById(Long id) {
+		DaoSession daoSession = AssisApp.getDaoSession(activity.getApplicationContext());
+		daoSession.getSystemMsgDao().deleteByKey(id);
+	}
+}

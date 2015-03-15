@@ -185,7 +185,7 @@
     </style>
 
     <style name="setting_alt_text">
-        <item name="android:textSize">13.0sp</item>
+        <item name="android:textSize">17.0sp</item>
         <item name="android:textColor">@color/setting_alt_text</item>
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:layout_width">wrap_content</item>

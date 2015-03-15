@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -38,6 +39,16 @@ public class DateTools {
 		re_StrTime = sdf.format(new Date(lcc_time * 1000L));
 		return re_StrTime;
 
+	}
+	
+	/*
+	 * 获取当前时间为字符串 ，格式：yyyy-MM-dd HH:mm:ss
+	 */
+	public static String getStrTime_ymd_hms() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		GregorianCalendar gregorianCalendar = new GregorianCalendar();
+		String now = sdf.format(gregorianCalendar.getTime());
+		return now;
 	}
 
 	/*
@@ -112,7 +123,7 @@ public class DateTools {
 		return re_StrTime;
 	}
 
-	/* 
+	/**
 	 * 将字符串转为时间戳
 	 */
 	public static String getTime() {

@@ -1,0 +1,46 @@
+package com.example.assis_3.manager;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import com.example.assis_3.AssisApp;
+import com.example.assis_3.DaoSession;
+import com.example.assis_3.db.SQLHelper;
+
+import android.app.Activity;
+import android.database.SQLException;
+import android.util.Log;
+
+public class ChannelManage {
+	public static ChannelManage channelManage;
+	
+	public static Activity mActivity;
+	/**
+	 * 默认的用户选择频道列表
+	 * */
+	public static List<ChannelItem> defaultUserChannels;
+
+	static {
+		defaultUserChannels = new ArrayList<ChannelItem>();
+	}
+
+	/**
+	 * 初始化频道管理类
+	 * @param paramDBHelper
+	 * @throws SQLException
+	 */
+	public static ChannelManage getManage(Activity activity)throws SQLException {
+		mActivity = activity;
+		if (channelManage == null){
+			channelManage = new ChannelManage();
+		}
+		return channelManage;
+	}
+	
+	public List<ChannelItem> getChannel(){
+		DaoSession daoSession = AssisApp.getDaoSession(mActivity);
+		defaultUserChannels = daoSession.getChannelItemDao().loadAll();
+	}
+	
+}

@@ -60,8 +60,8 @@
         <activity
             android:name=".extensions.sample.MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:launchMode="singleTask" >
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -70,8 +70,23 @@
         </activity>
         <activity
             android:name=".extensions.sample.SettingActivity"
-            android:screenOrientation="portrait"
-            android:launchMode="singleInstance" >
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".extensions.sample.FavoriteActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".extensions.sample.MessageActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".extensions.sample.FeedbackActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait" >
         </activity>
     </application>
 

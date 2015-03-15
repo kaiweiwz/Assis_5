@@ -10,6 +10,7 @@
     <string name="left_drawer_no_login_tip">登录后，将推荐给你更多感兴趣的文章</string>
     <string name="left_drawer_item_search">新闻</string>
     <string name="left_drawer_item_favorite">收藏</string>
+    <string name="left_drawer_item_cancel_favorite">取消收藏</string>
     <string name="left_drawer_item_message">消息</string>
     <string name="left_drawer_item_offline">离线</string>
     <string name="left_drawer_item_offline_cancel">取消离线</string>
@@ -34,5 +35,13 @@
     <string name="weather_today">今天</string>
     <string name="weather_tomorrow">明天</string>
     <string name="weather_after_tomorrow">后天</string>
+    
+    <string name="feedback_left_msg_1">Hi,欢迎反馈，请一并附上联系方式，我们将及时进行回复</string>
+    
+    <string name="font_size">请选择字体</string>
+    <string name="font_size_0">小</string>
+    <string name="font_size_1">中</string>
+    <string name="font_size_2">大</string>
+    
 
 </resources>

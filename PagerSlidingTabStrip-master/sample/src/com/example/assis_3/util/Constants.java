@@ -3,7 +3,8 @@ package com.example.assis_3.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.assis_3.entity.NewsEntity;
+import com.example.assis_3.NewsEntity;
+
 
 //import com.topnews.bean.NewsClassify;
 
@@ -13,15 +14,10 @@ public class Constants {
 	 */
 	public static ArrayList<NewsEntity> getNewsList() {
 		ArrayList<NewsEntity> newsList = new ArrayList<NewsEntity>();
-		for(int i =0 ; i < 10 ; i++){
+		for(long i =0 ; i < 10 ; i++){
 			NewsEntity news = new NewsEntity();
 			news.setId(i);
-			news.setNewsId(i);
 			news.setCollectStatus(false);
-			news.setCommentNum(i + 10);
-			news.setInterestedStatus(true);
-			news.setLikeStatus(true);
-			news.setReadStatus(false);
 			news.setNewsCategory("推荐");
 			news.setNewsCategoryId(1);
 			news.setSource_url("http://news.sina.com.cn/c/2014-05-05/134230063386.shtml");
@@ -44,12 +40,10 @@ public class Constants {
 				news.setPicOne(url);
 				url_list.add(url);
 			}
-			news.setPicList(url_list);
-			news.setPublishTime(Long.valueOf(i));
-			news.setReadStatus(false);
+			//news.setPicList(url_list);
+			//news.setPublishTime(Long.valueOf(i));
 			news.setSource("手机腾讯网");
 			news.setSummary("腾讯数码讯（编译：Gin）谷歌眼镜可能是目前最酷的可穿戴数码设备，你可以戴着它去任何地方（只要法律法规允许或是没有引起众怒），作为手机的第二块“增强现实显示屏”来使用。另外，虽然它仍未正式销售，但谷歌近日在美国市场举行了仅限一天的开放购买活动，价格则为1500美元（约合人民币9330元），虽然仍十分昂贵，但至少可以满足一些尝鲜者的需求，也预示着谷歌眼镜的公开大规模销售离我们越来越近了。");
-			news.setMark(i);
 			if(i == 4){
 				news.setTitle("部落战争强势回归");
 				news.setLocal("推广");
@@ -66,13 +60,13 @@ public class Constants {
 				news.setComment("评论部分，说的非常好。");
 			}
 			
-			if(i <= 2){
-				news.setPublishTime(Long.valueOf(DateTools.getTime()));
-			}else if(i >2 && i <= 5){
-				news.setPublishTime(Long.valueOf(DateTools.getTime()) - 86400);
-			}else{
-				news.setPublishTime(Long.valueOf(DateTools.getTime()) - 86400 * 2);
-			}
+//			if(i <= 2){
+//				news.setPublishTime(Long.valueOf(DateTools.getTime()));
+//			}else if(i >2 && i <= 5){
+//				news.setPublishTime(Long.valueOf(DateTools.getTime()) - 86400);
+//			}else{
+//				news.setPublishTime(Long.valueOf(DateTools.getTime()) - 86400 * 2);
+//			}
 			newsList.add(news);
 		}
 		return newsList;

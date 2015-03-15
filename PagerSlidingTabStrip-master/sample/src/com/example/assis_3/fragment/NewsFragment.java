@@ -2,37 +2,34 @@ package com.example.assis_3.fragment;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
+import com.example.assis_3.NewsEntity;
 import com.example.assis_3.R;
 import com.example.assis_3.adapter.NewsAdapter;
-import com.example.assis_3.entity.NewsEntity;
 import com.example.assis_3.util.Constants;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnLastItemVisibleListener;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.State;
 import com.handmark.pulltorefresh.library.extras.SoundPullEventListener;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 public class NewsFragment extends Fragment {
 	private final static String TAG = "NewsFragment";
@@ -40,13 +37,16 @@ public class NewsFragment extends Fragment {
 	private ArrayList<NewsEntity> newsList = new ArrayList<NewsEntity>();
 	private PullToRefreshListView mPullRefreshListView;
 	private NewsAdapter mAdapter;
-	private String text;
+	private String text;	
 	private int channel_id;
 	private ImageView detail_loading;
 	public final static int SET_NEWSLIST = 0;
 	//Toast提示框
 	private RelativeLayout notify_view;
 	private TextView notify_view_text;
+	
+	private ListView mListView = null;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -58,29 +58,38 @@ public class NewsFragment extends Fragment {
 	}
 
 	private void initListView() {
-		// Set a listener to be invoked when the list should be refreshed.
-		mPullRefreshListView.setOnRefreshListener(new OnRefreshListener<ListView>() {
-			@Override
-			public void onRefresh(PullToRefreshBase<ListView> refreshView) {
-				String label = DateUtils.formatDateTime(activity.getApplicationContext(), System.currentTimeMillis(),
-						DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
-
-				// Update the LastUpdatedLabel
-				refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
-				// Do work to refresh the list here.
-				handler.obtainMessage();
-			}
-		});
-
-		// Add an end-of-list listener
-		mPullRefreshListView.setOnLastItemVisibleListener(new OnLastItemVisibleListener() {
-
-			@Override
-			public void onLastItemVisible() {
-				Toast.makeText(activity, "End of List!", Toast.LENGTH_SHORT).show();
-			}
-		});		
+		mPullRefreshListView.setMode(Mode.BOTH);
+		// 下拉刷新时的提示文本设置
+		mPullRefreshListView.getLoadingLayoutProxy(true, false).setLastUpdatedLabel("下拉刷新");
+		mPullRefreshListView.getLoadingLayoutProxy(true, false).setPullLabel("");
+		mPullRefreshListView.getLoadingLayoutProxy(true, false).setRefreshingLabel("正在刷新");
+		mPullRefreshListView.getLoadingLayoutProxy(true, false).setReleaseLabel("放开以刷新");
+		// 上拉加载更多时的提示文本设置
+		mPullRefreshListView.getLoadingLayoutProxy(false, true).setLastUpdatedLabel("上拉加载");
+		mPullRefreshListView.getLoadingLayoutProxy(false, true).setPullLabel("");
+		mPullRefreshListView.getLoadingLayoutProxy(false, true).setRefreshingLabel("正在加载...");
+		mPullRefreshListView.getLoadingLayoutProxy(false, true).setReleaseLabel("放开以加载");
 		
+		// Set a listener to be invoked when the list should be refreshed.
+		mPullRefreshListView.setOnRefreshListener(new OnRefreshListener2<ListView>() {
+
+			@Override
+			public void onPullDownToRefresh(
+					PullToRefreshBase<ListView> refreshView) {
+				// TODO Auto-generated method stub
+				//下拉执行刷新页面
+				
+			}
+
+			@Override
+			public void onPullUpToRefresh(
+					PullToRefreshBase<ListView> refreshView) {
+				// TODO Auto-generated method stub
+				//上拉载入信息
+			}
+			
+		});
+			
 		/**
 		 * Add Sound Event Listener
 		 */
@@ -135,12 +144,11 @@ public class NewsFragment extends Fragment {
 		mPullRefreshListView =  (PullToRefreshListView) view.findViewById(R.id.pull_refresh_list);
 		initListView();
 		
-		TextView item_textview = (TextView)view.findViewById(R.id.item_textview);
 		detail_loading = (ImageView)view.findViewById(R.id.detail_loading);
 		//Toast提示框
 		notify_view = (RelativeLayout)view.findViewById(R.id.notify_view);
 		notify_view_text = (TextView)view.findViewById(R.id.notify_view_text);
-		item_textview.setText(text);
+		mListView = mPullRefreshListView.getRefreshableView();
 		return view;
 	}
 
@@ -153,6 +161,7 @@ public class NewsFragment extends Fragment {
 		public void handleMessage(Message msg) {
 			// TODO Auto-generated method stub
 			switch (msg.what) {
+			//页面显示时，载入数据 
 			case SET_NEWSLIST:
 				detail_loading.setVisibility(View.GONE);
 				if(mAdapter == null){
@@ -183,6 +192,41 @@ public class NewsFragment extends Fragment {
 					initNotify();
 				}
 				break;
+			case 1:
+				List<NewsEntity> refreshNews = (List<NewsEntity>) msg.obj;
+				//加载数据
+				newsList.addAll (refreshNews);
+				//排序
+				Collections.sort(newsList,  new Comparator<NewsEntity>(){
+					//自定义排序实现
+					@Override
+					public int compare(NewsEntity arg0, NewsEntity arg1) {
+						// TODO Auto-generated method stub
+						return 0;
+					}
+				});
+				//下拉时，刷新数据
+				mAdapter.notifyDataSetChanged();
+				// 停止刷新
+				mPullRefreshListView.onRefreshComplete();
+			case 2:
+				//上拉时，载入数据
+				List<NewsEntity> loadNews = (List<NewsEntity>) msg.obj;
+				//加载数据
+				newsList.addAll (loadNews);
+				//排序
+				Collections.sort(newsList,  new Comparator<NewsEntity>(){
+					//自定义排序实现
+					@Override
+					public int compare(NewsEntity arg0, NewsEntity arg1) {
+						// TODO Auto-generated method stub
+						return 0;
+					}
+				});
+				//下拉时，刷新数据
+				mAdapter.notifyDataSetChanged();
+				// 停止刷新
+				mPullRefreshListView.onRefreshComplete();
 			default:
 				break;
 			}

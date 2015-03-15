@@ -25,6 +25,8 @@ import com.actionbarsherlock.view.MenuItem;
 import com.baidu.location.BDLocation;
 import com.example.assis_3.R;
 import com.example.assis_3.extensions.sample.FavoriteActivity;
+import com.example.assis_3.extensions.sample.FeedbackActivity;
+import com.example.assis_3.extensions.sample.MainActivity;
 import com.example.assis_3.extensions.sample.MessageActivity;
 import com.example.assis_3.extensions.sample.SettingActivity;
 import com.example.assis_3.manager.LocationManager;
@@ -41,8 +43,6 @@ public class BaseActivity extends SlidingFragmentActivity implements
 		OnClickListener {
 
 	private int mTitleRes;
-
-	protected ListFragment mFrag;
 
 	protected SlidingMenu leftMenu;
 
@@ -77,11 +77,10 @@ public class BaseActivity extends SlidingFragmentActivity implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setTitle(mTitleRes);
-
 		// set the Behind View
 		setBehindContentView(R.layout.menu_frame);
+		setContentView(R.layout.menu_frame);
 		initLeftMenu();
 		initData();
 		initView();
@@ -134,13 +133,14 @@ public class BaseActivity extends SlidingFragmentActivity implements
 	private void initLeftMenu() {
 		// customize the SlidingMenu
 		leftMenu = getSlidingMenu();
-		leftMenu.setMenu(R.layout.left_drawer_fragment);
 		leftMenu.setMode(SlidingMenu.LEFT);
 		leftMenu.setShadowWidthRes(R.dimen.shadow_width);
 		leftMenu.setShadowDrawable(R.drawable.shadow);
 		leftMenu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
 		leftMenu.setFadeDegree(0.35f);
 		leftMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+		leftMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+		leftMenu.setMenu(R.layout.left_drawer_fragment);
 	}
 
 	@Override
@@ -231,10 +231,10 @@ public class BaseActivity extends SlidingFragmentActivity implements
 		Intent intent = null;
 		switch (id) {
 		case R.id.news_btn:
-			if (leftMenu.isShown()) {
-				//toggle();
+			if(leftMenu.isShown()){
 				leftMenu.showContent();
 			}
+			break;
 		case R.id.setting_btn:
 			intent = new Intent(this, SettingActivity.class);
 			startActivity(intent);
@@ -243,9 +243,21 @@ public class BaseActivity extends SlidingFragmentActivity implements
 			break;
 		case R.id.favorite_btn:
 			intent = new Intent(this, FavoriteActivity.class);
+			startActivity(intent);
+			overridePendingTransition(R.anim.slide_in_right,
+					R.anim.slide_out_left);
 			break;
 		case R.id.message_btn:
 			intent = new Intent(this, MessageActivity.class);
+			startActivity(intent);
+			overridePendingTransition(R.anim.slide_in_right,
+					R.anim.slide_out_left);
+			break;
+		case R.id.feedback_btn:
+			intent = new Intent(this, FeedbackActivity.class);
+			startActivity(intent);
+			overridePendingTransition(R.anim.slide_in_right,
+					R.anim.slide_out_left);
 			break;
 		}
 	}

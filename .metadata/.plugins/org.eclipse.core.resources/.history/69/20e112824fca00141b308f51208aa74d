@@ -1,0 +1,473 @@
+/*
+ * Copyright (C) 2013 Andreas Stuetz <andreas.stuetz@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.example.assis_3.extensions.sample;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.KeyEvent;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.astuetz.PagerSlidingTabStrip;
+import com.baidu.location.BDLocation;
+import com.example.assis_3.ChannelItem;
+import com.example.assis_3.R;
+import com.example.assis_3.activity.BaseActivity;
+import com.example.assis_3.activity.BaseActivity.BaseBroadcast;
+import com.example.assis_3.adapter.NewsFragmentPagerAdapter;
+import com.example.assis_3.constants.CommonConstants;
+import com.example.assis_3.fragment.NewsFragment;
+import com.example.assis_3.manager.ChannelManage;
+import com.example.assis_3.manager.LocationManager;
+import com.example.weather.contants.ServiceConstants;
+import com.example.weather.model.BaiduWeatherModel;
+import com.example.weather.model.WeatherDomain;
+import com.example.weather.service.WeatherService;
+import com.example.weather.service.WeatherServiceImpl;
+import com.example.weather.service.WeatherServiceImpl.WeatherServiceCallBack;
+import com.jeremyfeinstein.slidingmenu.lib.SlidingMenu;
+import com.jeremyfeinstein.slidingmenu.lib.app.SlidingFragmentActivity;
+
+public class MainActivity extends FragmentActivity implements
+		com.actionbarsherlock.ActionBarSherlock.OnOptionsItemSelectedListener, OnClickListener {
+
+	private final Handler handler = new Handler();
+
+	private PagerSlidingTabStrip tabs;
+	private ViewPager mViewPager;
+	private Drawable oldBackground = null;
+
+	private List<Fragment> fragments = new ArrayList<Fragment>();
+	/** 用户选择的新闻分类列表 */
+	private List<ChannelItem> userChannelList = new ArrayList<ChannelItem>();
+	
+	protected SlidingMenu leftMenu;
+
+	private TextView todayInfo_1;
+	private TextView todayInfo_2;
+	private TextView todayInfo_3;
+
+	private ImageView wea_img_1;
+	private ImageView wea_img_2;
+	private ImageView wea_img_3;
+
+	// 按键
+	private RelativeLayout news_btn;
+	private RelativeLayout favorite_btn;
+	private RelativeLayout message_btn;
+	private RelativeLayout feedback_btn;
+	private RelativeLayout setting_btn;
+
+	// 初始化照片元素
+	private static Drawable cloudy;
+	private static Drawable sunny;
+	private static Drawable c_s;
+	private static Drawable rain;
+
+	// 天气预报 服务
+	protected WeatherService weatherService = new WeatherServiceImpl();
+	
+
+	public MainActivity() {
+		//setTitle(R.string.app_name);
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		//setBehindContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_main);
+		
+		initLeftMenu2();
+		initData2();
+		initView2();
+		initListener2();
+		
+		initData();
+		initView();
+		
+	}
+	
+	private void initData2() {
+		LocationManager locationManager = new LocationManager(this);
+		locationManager.init();
+		locationManager.startLocationService();
+		//getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		getActionBar().setDisplayShowTitleEnabled(true);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+		IntentFilter baseFilter = new IntentFilter(
+				ServiceConstants.LOCATION_BROADCAST_ACTION);
+		BaseBroadcast baseBroadcast = new BaseBroadcast();
+		registerReceiver(baseBroadcast, baseFilter);
+	}
+
+	public class BaseBroadcast extends BroadcastReceiver {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent == null) {
+				return;
+			}
+			BDLocation location = intent.getParcelableExtra("location");
+			Log.i("location",
+					"Add Str>>>>>>>>>>>>>>>>>>" + location.getAddrStr());
+			String loc = location.getLongitude() + "," + location.getLatitude();
+			weatherService.getBaiduWeatherModel(loc,
+					new WeatherServiceCallBack() {
+
+						@Override
+						public void callBack(BaiduWeatherModel baiduWeatherModel) {
+							if (baiduWeatherModel == null) {
+								return;
+							}
+							List<WeatherDomain> weaInfo = baiduWeatherModel
+									.getWeather_data();
+							for (int i = 0; i < weaInfo.size(); i++) {
+
+								String info = weaInfo.get(i).getWeather();
+								Log.i("location", "location .>>>>>>>>>>>"
+										+ info.toString());
+								if (i == 0) {
+									if (info.contains("多云")) {
+										wea_img_1.setImageDrawable(c_s);
+									} else if (info.contains("雨")) {
+										wea_img_1.setImageDrawable(rain);
+									} else if (info.contains("晴")) {
+										wea_img_1.setImageDrawable(sunny);
+									} else {
+										wea_img_1.setImageDrawable(cloudy);
+									}
+								} else if (i == 1) {
+									if (info.contains("多云")) {
+										wea_img_2.setImageDrawable(c_s);
+									} else if (info.contains("雨")) {
+										wea_img_2.setImageDrawable(rain);
+									} else if (info.contains("晴")) {
+										wea_img_2.setImageDrawable(sunny);
+									} else {
+										wea_img_2.setImageDrawable(cloudy);
+									}
+								} else if (i == 2) {
+									if (info.contains("多云")) {
+										wea_img_3.setImageDrawable(c_s);
+									} else if (info.contains("雨")) {
+										wea_img_3.setImageDrawable(rain);
+									} else if (info.contains("晴")) {
+										wea_img_3.setImageDrawable(sunny);
+									} else {
+										wea_img_3.setImageDrawable(cloudy);
+									}
+								}
+							}
+
+						}
+
+					});
+		}
+
+	}
+	
+	private void initView2() {
+		todayInfo_1 = (TextView) leftMenu.findViewById(R.id.info_1);
+		todayInfo_2 = (TextView) leftMenu.findViewById(R.id.info_2);
+		todayInfo_3 = (TextView) leftMenu.findViewById(R.id.info_3);
+
+		wea_img_1 = (ImageView) leftMenu.findViewById(R.id.wea_1);
+		wea_img_2 = (ImageView) leftMenu.findViewById(R.id.wea_2);
+		wea_img_3 = (ImageView) leftMenu.findViewById(R.id.wea_3);
+
+		news_btn = (RelativeLayout) leftMenu.findViewById(R.id.news_btn);
+		favorite_btn = (RelativeLayout) leftMenu
+				.findViewById(R.id.favorite_btn);
+		message_btn = (RelativeLayout) leftMenu.findViewById(R.id.message_btn);
+		feedback_btn = (RelativeLayout) leftMenu
+				.findViewById(R.id.feedback_btn);
+		setting_btn = (RelativeLayout) leftMenu.findViewById(R.id.setting_btn);
+
+		cloudy = this.getResources().getDrawable(R.drawable.cloudy);
+		sunny = this.getResources().getDrawable(R.drawable.sunny);
+		c_s = this.getResources().getDrawable(R.drawable.c_s);
+		rain = this.getResources().getDrawable(R.drawable.rain);
+
+	}
+
+	private void initListener2() {
+		news_btn.setOnClickListener(this);
+		setting_btn.setOnClickListener(this);
+		favorite_btn.setOnClickListener(this);
+		message_btn.setOnClickListener(this);
+		feedback_btn.setOnClickListener(this);
+	}
+
+	private void initLeftMenu2() {
+		// customize the SlidingMenu
+		leftMenu = new SlidingMenu(this);
+		leftMenu.setMode(SlidingMenu.LEFT);
+		leftMenu.setShadowWidthRes(R.dimen.shadow_width);
+		leftMenu.setShadowDrawable(R.drawable.shadow);
+		leftMenu.setBehindOffsetRes(R.dimen.slidingmenu_offset);
+		leftMenu.setFadeDegree(0.35f);
+		leftMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_MARGIN);
+		leftMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+		leftMenu.setMenu(R.layout.left_drawer_fragment);
+	}
+	
+	
+
+	private void initData() {
+		initColumnData();
+	}
+
+	/** 获取Column栏目 数据 */
+	private void initColumnData() {
+		userChannelList = ChannelManage.getManage(this).getChannel();
+	}
+
+	private void initView() {
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+		initFragment();
+		tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+		tabs.setIndicatorHeight(6);
+		tabs.setTextSize(30);
+		tabs.setViewPager(mViewPager);
+		final int pageMargin = (int) TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
+						.getDisplayMetrics());
+		mViewPager.setPageMargin(pageMargin);
+		int color = Color.parseColor("#FFC74B46");
+		changeColor(color);
+	}
+
+	/**
+	 * 初始化Fragment
+	 * */
+	private void initFragment() {
+		fragments.clear();// 清空
+		int count = userChannelList.size();
+		String[] titles = new String[count];
+		for (int i = 0; i < count; i++) {
+			Bundle data = new Bundle();
+			String columnName = userChannelList.get(i).getName();
+			//tab 标题
+			data.putString("text", columnName);
+			titles[i] = columnName;
+			Long columnID = userChannelList.get(i).getId();
+			//tab ID
+			data.putLong("id", columnID);
+			NewsFragment newfragment = new NewsFragment();
+			newfragment.setArguments(data);
+			fragments.add(newfragment);
+		}
+		NewsFragmentPagerAdapter mAdapetr = new NewsFragmentPagerAdapter(
+				getSupportFragmentManager(), fragments, titles);
+		mViewPager.setAdapter(mAdapetr);
+	}
+
+	private void changeColor(int newColor) {
+
+		tabs.setIndicatorColor(newColor);
+		// change ActionBar color just if an ActionBar is available
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			Drawable colorDrawable = new ColorDrawable(newColor);
+			Drawable bottomDrawable = getResources().getDrawable(
+					R.drawable.actionbar_bottom);
+			LayerDrawable ld = new LayerDrawable(new Drawable[] {
+					colorDrawable, bottomDrawable });
+			if (oldBackground == null) {
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+					ld.setCallback(drawableCallback);
+				} else {
+					getActionBar().setBackgroundDrawable(ld);
+				}
+			} else {
+				TransitionDrawable td = new TransitionDrawable(new Drawable[] {
+						oldBackground, ld });
+				// workaround for broken ActionBarContainer drawable handling on
+				// pre-API 17 builds
+				// https://github.com/android/platform_frameworks_base/commit/a7cc06d82e45918c37429a59b14545c6a57db4e4
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+					td.setCallback(drawableCallback);
+				} else {
+					getActionBar().setBackgroundDrawable(td);
+				}
+				td.startTransition(200);
+			}
+			oldBackground = ld;
+			// http://stackoverflow.com/questions/11002691/actionbar-setbackgrounddrawable-nulling-background-from-thread-handler
+			getActionBar().setDisplayShowTitleEnabled(true);
+		}
+	}
+
+	private long mExitTime;
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (leftMenu.isMenuShowing() || leftMenu.isSecondaryMenuShowing()) {
+				leftMenu.showContent();
+			} else {
+				if ((System.currentTimeMillis() - mExitTime) > 2000) {
+					Toast.makeText(this, "在按一次退出", Toast.LENGTH_SHORT).show();
+					mExitTime = System.currentTimeMillis();
+				} else {
+					finish();
+				}
+			}
+			return true;
+		}
+		// 拦截MENU按钮点击事件，让他无任何操作
+		if (keyCode == KeyEvent.KEYCODE_MENU) {
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_contact:
+			QuickContactFragment dialog = new QuickContactFragment();
+			dialog.show(getSupportFragmentManager(), "QuickContactFragment");
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		switch (requestCode) {
+		case CommonConstants.FROM_SETTING:
+			if (resultCode == 1) {
+				setChangelView();
+			}
+			break;
+
+		default:
+			break;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	//设置页面返回， 根据设置信息更新页面
+	private void setChangelView() {
+		initData();
+		initView();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		// outState.putInt("currentColor", currentColor);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+	}
+
+	private Drawable.Callback drawableCallback = new Drawable.Callback() {
+		@Override
+		public void invalidateDrawable(Drawable who) {
+			getActionBar().setBackgroundDrawable(who);
+		}
+
+		@Override
+		public void scheduleDrawable(Drawable who, Runnable what, long when) {
+			handler.postAtTime(what, when);
+		}
+
+		@Override
+		public void unscheduleDrawable(Drawable who, Runnable what) {
+			handler.removeCallbacks(what);
+		}
+	};
+	
+	@Override
+	public void onClick(View view) {
+		int id = view.getId();
+		Intent intent = null;
+		switch (id) {
+		case R.id.news_btn:
+			if(leftMenu.isShown()){
+				leftMenu.showContent();
+			}
+			break;
+		case R.id.setting_btn:
+			intent = new Intent(this, SettingActivity.class);
+			startActivity(intent);
+			overridePendingTransition(R.anim.slide_in_right,
+					R.anim.slide_out_left);
+			break;
+		case R.id.favorite_btn:
+			intent = new Intent(this, FavoriteActivity.class);
+			startActivity(intent);
+			overridePendingTransition(R.anim.slide_in_right,
+					R.anim.slide_out_left);
+			break;
+		case R.id.message_btn:
+			intent = new Intent(this, MessageActivity.class);
+			startActivity(intent);
+			overridePendingTransition(R.anim.slide_in_right,
+					R.anim.slide_out_left);
+			break;
+		case R.id.feedback_btn:
+			intent = new Intent(this, FeedbackActivity.class);
+			startActivity(intent);
+			overridePendingTransition(R.anim.slide_in_right,
+					R.anim.slide_out_left);
+			break;
+		}
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(
+			com.actionbarsherlock.view.MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_contact:
+			QuickContactFragment dialog = new QuickContactFragment();
+			dialog.show(getSupportFragmentManager(), "QuickContactFragment");
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+}
