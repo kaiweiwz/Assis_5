@@ -48,6 +48,9 @@ public class SystemMsgDao extends AbstractDao<SystemMsg, Long> {
                 "'TIME' TEXT," + // 2: time
                 "'DESCR' TEXT," + // 3: descr
                 "'SUMMARY' TEXT);"); // 4: summary
+        //测试用系统消息
+        db.execSQL("insert into SYSTEM_MSG(TITLE, TIME, DESCR) values('元旦快乐', '2015-1-1', '大家元旦快乐！！！')");
+        db.execSQL("insert into SYSTEM_MSG(TITLE, TIME, DESCR) values('服务器维护升级', '2015-2-3', '服务将于XXXX-XX-XX HH:MM:SS， 准点开始升级~~')");
     }
 
     /** Drops the underlying database table. */

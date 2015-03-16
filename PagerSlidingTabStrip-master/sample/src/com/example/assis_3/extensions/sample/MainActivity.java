@@ -48,7 +48,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.baidu.android.feedback.FeedbackManager;
 import com.baidu.location.BDLocation;
 import com.example.assis_3.ChannelItem;
 import com.example.assis_3.R;

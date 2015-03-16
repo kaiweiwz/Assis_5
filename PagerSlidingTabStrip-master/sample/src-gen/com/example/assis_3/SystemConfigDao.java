@@ -48,6 +48,9 @@ public class SystemConfigDao extends AbstractDao<SystemConfig, Long> {
                 "'CONFIG_VALUE' TEXT," + // 2: configValue
                 "'DESCR' TEXT," + // 3: descr
                 "'MODULE_ID' TEXT);"); // 4: moduleID
+        db.execSQL("insert into SYSTEM_CONFIG(CONFIG_NAME, CONFIG_VALUE, MODULE_ID) values('isDisplayAbstract', '1', '1')");
+        db.execSQL("insert into SYSTEM_CONFIG(CONFIG_NAME, CONFIG_VALUE, MODULE_ID) values('fontsize', '1', '1')");
+        db.execSQL("insert into SYSTEM_CONFIG(CONFIG_NAME, CONFIG_VALUE, MODULE_ID) values('isPush', '1', '1')");
     }
 
     /** Drops the underlying database table. */
