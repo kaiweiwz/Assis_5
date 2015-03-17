@@ -1,0 +1,244 @@
+/*
+ * Copyright (C) 2013 Andreas Stuetz <andreas.stuetz@gmail.com>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.example.assis_3.extensions.sample;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.TransitionDrawable;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.TypedValue;
+import android.view.KeyEvent;
+import android.widget.Toast;
+
+import com.actionbarsherlock.view.MenuItem;
+import com.astuetz.PagerSlidingTabStrip;
+import com.example.assis_3.R;
+import com.example.assis_3.activity.BaseActivity;
+import com.example.assis_3.adapter.NewsAdapter;
+import com.example.assis_3.adapter.NewsFragmentPagerAdapter;
+import com.example.assis_3.app.AppApplication;
+import com.example.assis_3.constants.CommonConstants;
+import com.example.assis_3.entity.ChannelItem;
+import com.example.assis_3.fragment.NewsFragment;
+import com.example.assis_3.manager.ChannelManage;
+
+public class MainActivity extends BaseActivity implements
+		com.actionbarsherlock.ActionBarSherlock.OnOptionsItemSelectedListener {
+
+	private final Handler handler = new Handler();
+
+	private PagerSlidingTabStrip tabs;
+	private ViewPager mViewPager;
+	private Drawable oldBackground = null;
+
+	private List<Fragment> fragments = new ArrayList<Fragment>();
+	/** 用户选择的新闻分类列表 */
+	private List<ChannelItem> userChannelList = new ArrayList<ChannelItem>();
+
+	public MainActivity() {
+		super(R.string.app_name);
+	}
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		initData();
+		initView();
+	}
+
+	private void initData() {
+		initColumnData();
+	}
+
+	/** 获取Column栏目 数据 */
+	private void initColumnData() {
+		userChannelList = ChannelManage.getManage(
+				AppApplication.getApp().getSQLHelper()).getUserChannel();
+	}
+
+	private void initView() {
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+		initFragment();
+		tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+		tabs.setIndicatorHeight(6);
+		tabs.setTextSize(30);
+		tabs.setViewPager(mViewPager);
+		final int pageMargin = (int) TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, 4, getResources()
+						.getDisplayMetrics());
+		mViewPager.setPageMargin(pageMargin);
+		int color = Color.parseColor("#FFC74B46");
+		changeColor(color);
+	}
+
+	/**
+	 * 初始化Fragment
+	 * */
+	private void initFragment() {
+		fragments.clear();// 清空
+		int count = userChannelList.size();
+		String[] titles = new String[count];
+		for (int i = 0; i < count; i++) {
+			Bundle data = new Bundle();
+			String columnName = userChannelList.get(i).getName();
+			data.putString("text", columnName);
+			titles[i] = columnName;
+			int columnID = userChannelList.get(i).getId();
+			data.putInt("id", columnID);
+			NewsFragment newfragment = new NewsFragment();
+			newfragment.setArguments(data);
+			fragments.add(newfragment);
+		}
+		NewsFragmentPagerAdapter mAdapetr = new NewsFragmentPagerAdapter(
+				getSupportFragmentManager(), fragments, titles);
+		mViewPager.setAdapter(mAdapetr);
+	}
+
+	private void changeColor(int newColor) {
+
+		tabs.setIndicatorColor(newColor);
+		// change ActionBar color just if an ActionBar is available
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			Drawable colorDrawable = new ColorDrawable(newColor);
+			Drawable bottomDrawable = getResources().getDrawable(
+					R.drawable.actionbar_bottom);
+			LayerDrawable ld = new LayerDrawable(new Drawable[] {
+					colorDrawable, bottomDrawable });
+			if (oldBackground == null) {
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+					ld.setCallback(drawableCallback);
+				} else {
+					getActionBar().setBackgroundDrawable(ld);
+				}
+			} else {
+				TransitionDrawable td = new TransitionDrawable(new Drawable[] {
+						oldBackground, ld });
+				// workaround for broken ActionBarContainer drawable handling on
+				// pre-API 17 builds
+				// https://github.com/android/platform_frameworks_base/commit/a7cc06d82e45918c37429a59b14545c6a57db4e4
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+					td.setCallback(drawableCallback);
+				} else {
+					getActionBar().setBackgroundDrawable(td);
+				}
+				td.startTransition(200);
+			}
+			oldBackground = ld;
+			// http://stackoverflow.com/questions/11002691/actionbar-setbackgrounddrawable-nulling-background-from-thread-handler
+			getActionBar().setDisplayShowTitleEnabled(true);
+		}
+	}
+
+	private long mExitTime;
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// TODO Auto-generated method stub
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if (leftMenu.isMenuShowing() || leftMenu.isSecondaryMenuShowing()) {
+				leftMenu.showContent();
+			} else {
+				if ((System.currentTimeMillis() - mExitTime) > 2000) {
+					Toast.makeText(this, "在按一次退出", Toast.LENGTH_SHORT).show();
+					mExitTime = System.currentTimeMillis();
+				} else {
+					finish();
+				}
+			}
+			return true;
+		}
+		// 拦截MENU按钮点击事件，让他无任何操作
+		if (keyCode == KeyEvent.KEYCODE_MENU) {
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_contact:
+			QuickContactFragment dialog = new QuickContactFragment();
+			dialog.show(getSupportFragmentManager(), "QuickContactFragment");
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		switch (requestCode) {
+		case CommonConstants.FROM_SETTING:
+			if (resultCode == 1) {
+				setChangelView();
+			}
+			break;
+
+		default:
+			break;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	//设置页面返回， 根据设置信息更新页面
+	private void setChangelView() {
+		initData();
+		initView();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		// outState.putInt("currentColor", currentColor);
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+	}
+
+	private Drawable.Callback drawableCallback = new Drawable.Callback() {
+		@Override
+		public void invalidateDrawable(Drawable who) {
+			getActionBar().setBackgroundDrawable(who);
+		}
+
+		@Override
+		public void scheduleDrawable(Drawable who, Runnable what, long when) {
+			handler.postAtTime(what, when);
+		}
+
+		@Override
+		public void unscheduleDrawable(Drawable who, Runnable what) {
+			handler.removeCallbacks(what);
+		}
+	};
+
+}
